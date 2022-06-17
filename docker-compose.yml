@@ -1,0 +1,42 @@
+version: '2'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  phpfpm:
+    image: 'bitnami/php-fpm:latest'
+    networks:
+      - app-tier
+    volumes:
+      - ./wordpress:/app
+
+  mysql:
+    image: 'ubuntu/mysql:8.0-22.04_beta'
+    environment:
+      - MYSQL_ROOT_PASSWORD=redhat
+      - MYSQL_USER=ubuntu
+      - MYSQL_PASSWORD=redhat
+      - MYSQL_DATABASE=wordpress
+    networks:
+      - app-tier
+    ports:
+      - '3306:3306'
+
+  nginx:
+    image: 'bitnami/nginx:latest'
+    depends_on:
+      - phpfpm
+      - mysql
+    networks:
+      - app-tier
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx:/opt/bitnami/nginx/conf/server_blocks/
+
+       
+   
+
